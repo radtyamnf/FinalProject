@@ -16,7 +16,7 @@
         android:paddingBottom="16dp" />
 
     <EditText
-        android:id="@+id/LocationInput"
+        android:id="@+id/locationInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Lokasi (otomatis diisi)"

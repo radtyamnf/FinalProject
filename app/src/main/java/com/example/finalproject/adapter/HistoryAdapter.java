@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.finalproject.model.Attendance;
-import com.example.finalproject.R;
 import com.example.projectcrudraditya.R;
 
 import java.util.List;

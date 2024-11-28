@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser  currentUser  = mAuth.getCurrentUser ();
         if (currentUser  != null) {
-            loadUser Data;(currentUser .getUid());
+            loadUserData(currentUser .getUid());
         } else {
             redirectToLogin();
         }
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void loadUser Data(String userId) {
+    private void loadUserData(String userId) {
         db.collection("users").document(userId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {

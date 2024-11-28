@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.projectcrudraditya.R;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -51,7 +52,8 @@ public class LoginActivity extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(this, "Login Gagal:" + task.getException().getMassage(). Toast.LENGTH_SHORT.show());
+                            Toast.makeText(this, "Login Gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+
                         }
                     });
         } else {

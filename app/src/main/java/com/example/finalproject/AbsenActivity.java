@@ -16,7 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.example.finalproject.Model.Attendance;
+import com.example.finalproject.model.Attendance;
+import com.example.projectcrudraditya.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,31 +50,32 @@ public class AbsenActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        fusedLocationClient = locationService.getFusedLocationProviderClient(this);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        locationInput = findViewById(R.id.LocationInput);
+        locationInput = findViewById(R.id.locationInput);
         photoPreview = findViewById(R.id.photoPreview);
         btnCapturePhoto = findViewById(R.id.btnCapturePhoto);
         btnSubmitAttendance = findViewById(R.id.btnSubmitAttendance);
 
         getLocation();
 
-        btnCapturePhoto.setOnClickListener(v ->); {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.Camera) != PackageManager.PERMISSION_GRANTED) {
+        btnCapturePhoto.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
             } else {
                 capturePhoto();
             }
-        }
-        ;
+        });
 
-        btnSubmitAttendance.setOnClickListener(v -> submitAttendance);
+        btnSubmitAttendance.setOnClickListener(v -> submitAttendance());
     }
 
     private void capturePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+        try {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -82,13 +84,12 @@ public class AbsenActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
-            Bitmap photoBitmap = (Bitmap) extras.get("data");
+            photoBitmap = (Bitmap) extras.get("data");
             photoPreview.setImageBitmap(photoBitmap);
         }
     }
 
     private void getLocation() {
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
             return;
@@ -138,7 +139,6 @@ public class AbsenActivity extends AppCompatActivity {
                             Toast.makeText(this, "Gagal mengambil data pengguna.", Toast.LENGTH_SHORT).show());
         }
     }
-
 
     private String convertBitmapToBase64(Bitmap bitmap) {
         if (bitmap == null) return null;

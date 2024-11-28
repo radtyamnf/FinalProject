@@ -5,11 +5,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.finalproject.Model.User;
+
+import com.example.finalproject.model.User;
+import com.example.projectcrudraditya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText nameInput, classInput, emailInput, passwordInput;
@@ -35,24 +36,39 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
-        String name = nameInput.getText().toString();
-        String kelas = classInput.getText().toString();
-        String email = emailInput.getText().toString();
-        String password = passwordInput.getText().toString();
+        String name = nameInput.getText().toString().trim();
+        String userClass = classInput.getText().toString().trim();
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString().trim();
 
+        // Validate inputs
+        if (name.isEmpty() || userClass.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Semua bidang harus diisi!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (password.length() < 6) {
+            Toast.makeText(this, "Kata sandi harus memiliki setidaknya 6 karakter", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Register user with FirebaseAuth
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = auth.getCurrentUser();
                         if (firebaseUser != null) {
                             String userId = firebaseUser.getUid();
-                            User user = new User(userId, name, kelas);
+                            User user = new User(userId, name, userClass);
                             db.collection("users").document(userId).set(user)
                                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "Registrasi berhasil", Toast.LENGTH_SHORT).show())
-                                    .addOnFailureListener(e -> Toast.makeText(this, "Gagal menyimpan data pengguna", Toast.LENGTH_SHORT).show());
+                                    .addOnFailureListener(e -> Toast.makeText(this, "Gagal menyimpan data pengguna: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        } else {
+                            Toast.makeText(this, "Terjadi kesalahan: Pengguna tidak ditemukan.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(this, "Registrasi gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Terjadi kesalahan";
+                        Toast.makeText(this, "Registrasi gagal: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
