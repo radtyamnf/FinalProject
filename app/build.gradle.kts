@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.projectcrudraditya"
+    namespace = "com.example.finalproject"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.projectcrudraditya"
-        minSdk = 21
+        applicationId = "com.example.finalproject"
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -47,4 +47,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-analytics")
+    
+
 }

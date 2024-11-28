@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.example.finalproject.model.Attendance;
-import com.example.projectcrudraditya.R;
+import com.example.finalproject.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -113,32 +114,44 @@ public class AbsenActivity extends AppCompatActivity {
         }
 
         FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-
-            db.collection("users").document(userId).get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String name = documentSnapshot.getString("name") != null ? documentSnapshot.getString("name") : "Tidak Diketahui";
-                            String lokasi = locationInput.getText().toString();
-                            String waktuKehadiran = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-                            String fotoBase64 = convertBitmapToBase64(photoBitmap);
-
-                            String status = "Hadir";
-
-                            Attendance attendance = new Attendance(userId, name, status, lokasi, waktuKehadiran, fotoBase64);
-
-                            db.collection("Attendance").add(attendance)
-                                    .addOnSuccessListener(documentReference -> Toast.makeText(this, "Absensi berhasil.", Toast.LENGTH_SHORT).show())
-                                    .addOnFailureListener(e -> Toast.makeText(this, "Gagal menyimpan absensi.", Toast.LENGTH_SHORT).show());
-                        } else {
-                            Toast.makeText(this, "Data pengguna tidak ditemukan.", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Gagal mengambil data pengguna.", Toast.LENGTH_SHORT).show());
+        if (currentUser == null) {
+            Toast.makeText(this, "Silakan login terlebih dahulu.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        String userId = currentUser.getUid();
+        Log.d("DEBUG_USER_ID", "User ID: " + userId);
+
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String name = documentSnapshot.getString("name") != null ? documentSnapshot.getString("name") : "Tidak Diketahui";
+                        String lokasi = locationInput.getText().toString();
+                        String waktuKehadiran = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                        String fotoBase64 = convertBitmapToBase64(photoBitmap);
+
+                        String status = "Hadir";
+
+                        Attendance attendance = new Attendance(userId, name, status, lokasi, waktuKehadiran, fotoBase64);
+
+                        db.collection("Attendance").add(attendance)
+                                .addOnSuccessListener(documentReference -> Toast.makeText(this, "Absensi berhasil.", Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> {
+                                    Log.e("DEBUG_FIRESTORE", "Error saving attendance: ", e);
+                                    Toast.makeText(this, "Gagal menyimpan absensi.", Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Log.e("DEBUG_FIRESTORE", "User data does not exist in Firestore.");
+                        Toast.makeText(this, "Data pengguna tidak ditemukan.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DEBUG_FIRESTORE", "Failed to fetch user data: ", e);
+                    Toast.makeText(this, "Gagal mengambil data pengguna.", Toast.LENGTH_SHORT).show();
+                });
+
     }
+
 
     private String convertBitmapToBase64(Bitmap bitmap) {
         if (bitmap == null) return null;

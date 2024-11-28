@@ -1,4 +1,4 @@
-package com.example.finalproject.model.;
+package com.example.finalproject.model;
 
 public class Attendance {
     private String userId;
